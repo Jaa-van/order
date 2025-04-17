@@ -6,27 +6,30 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Generated;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
+@Builder
 @Entity
-@Table(name = "products")
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "product")
 public class Product {
 	@Id
+	@Column(name = "product_id", nullable = false)
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", nullable = false)
 	private Long id;
+
+	@Column(name = "`key`", nullable = false, length = 100)
+	private String key;
 
 	@Column(name = "name", length = 100)
 	private String name;
-
-	@Column(name = "category")
-	private Long category;
-
-	@Column(name = "detail_category")
-	private Long detailCategory;
 
 	@Column(name = "quantity")
 	private Long quantity;
@@ -34,7 +37,6 @@ public class Product {
 	@Column(name = "price")
 	private Long price;
 
-	@Column(name = "`explain`", length = 4000)
-	private String explain;
-
+	@Column(name = "description", length = 4000)
+	private String description;
 }

@@ -1,5 +1,11 @@
 package com.partridge.order.global.constant;
 
 public class ConstantValue {
-	public static final String CUSTOM_NOT_FOUND_EXCEPTION = "을(를) 찾을 수 없습니다.";
+	public static final String SUCCESS = "success";
+
+	public static final String FAIL = "fail";
+
+	public static final String PRODUCT = "제품";
+
+	public static final String ASC = "asc";
 }
