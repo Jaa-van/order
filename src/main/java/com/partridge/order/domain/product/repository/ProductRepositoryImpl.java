@@ -19,7 +19,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	public List<ProductListDTO.ResponseProduct> getProductsByKeywordAndSortByOrder(ProductListDTO.Request request) {
 		return queryFactory
 				.select(new QProductListDTO_ResponseProduct(product.id.longValue(), product.key, product.name,
-					product.quantity.longValue(), product.price, product.description))
+					product.inventory, product.price, product.description))
 				.from(product)
 				.where(ProductPredicateBuilder.containKeywords(product, request.getKeyword(), request.getSearchType()))
 				.orderBy(ProductPredicateBuilder.orderBy(product, request.getOrderBy(), request.getOrderDirection()))

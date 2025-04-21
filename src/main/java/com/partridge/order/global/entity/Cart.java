@@ -11,14 +11,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "order_product")
-public class OrderProduct {
+@Entity
+@Table(name = "cart")
+public class Cart {
 	@EmbeddedId
-	private OrderProductId id;
+	private CartId id;
 
 	@Column(name = "quantity")
 	private Long quantity;

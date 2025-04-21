@@ -30,7 +30,7 @@ public class ProductPredicateBuilder {
 		return switch (orderBy) {
 			case "name" -> new OrderSpecifier<>(order, product.name);
 			case "price" -> new OrderSpecifier<>(order, product.price);
-			case "quantity" -> new OrderSpecifier<>(order, product.quantity);
+			case "inventory" -> new OrderSpecifier<>(order, product.inventory);
 			default -> product.price.asc();
 		};
 	}

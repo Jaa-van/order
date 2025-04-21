@@ -1,7 +1,8 @@
 package com.partridge.order.domain.product.dto;
 
-import java.util.List;
+import static com.partridge.order.global.util.KeyUtil.*;
 
+import com.partridge.order.global.entity.Product;
 import com.querydsl.core.annotations.QueryProjection;
 
 import lombok.Builder;
@@ -9,22 +10,22 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-public class ProductListDTO {
+public class ProductPostDTO {
 
 	@Getter
 	@ToString
 	@EqualsAndHashCode
 	public static class Request {
-		private final String keyword;
-		private final String searchType;
-		private final String orderBy;
-		private final String orderDirection;
+		private final String name;
+		private final Long inventory;
+		private final Long price;
+		private final String description;
 
-		public Request(String keyword, String searchType, String orderBy, String orderDirection) {
-			this.keyword = keyword;
-			this.searchType = searchType;
-			this.orderBy = orderBy;
-			this.orderDirection = orderDirection;
+		public Request(String name, Long inventory, Long price, String description) {
+			this.name = name;
+			this.inventory = inventory;
+			this.price = price;
+			this.description = description;
 		}
 	}
 
@@ -33,15 +34,6 @@ public class ProductListDTO {
 	@ToString
 	@EqualsAndHashCode
 	public static class Response {
-		private final List<ResponseProduct> products;
-		private final int totalCount;
-	}
-
-	@Getter
-	@Builder
-	@ToString
-	@EqualsAndHashCode
-	public static class ResponseProduct {
 		private final Long productId;
 		private final String key;
 		private final String name;
@@ -50,7 +42,7 @@ public class ProductListDTO {
 		private final String description;
 
 		@QueryProjection
-		public ResponseProduct(Long productId, String key, String name, Long inventory, Long price, String description) {
+		public Response(Long productId, String key, String name, Long inventory, Long price, String description) {
 			this.productId = productId;
 			this.key = key;
 			this.name = name;

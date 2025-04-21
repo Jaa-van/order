@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-public class ProductDetailDTO {
+public class ProductDTO {
 	@Getter
 	@Builder
 	@ToString
@@ -14,7 +14,7 @@ public class ProductDetailDTO {
 		private final Long productId;
 		private final String key;
 		private final String name;
-		private final Long quantity;
+		private final Long inventory;
 		private final Long price;
 		private final String description;
 	}

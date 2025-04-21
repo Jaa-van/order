@@ -7,12 +7,12 @@ import com.partridge.order.global.exception.BusinessException;
 public class NotFoundException extends BusinessException {
 	private static final String message = NOT_FOUND_EXCEPTION.getMessage();
 
-	public NotFoundException(String name) {
-		super(name + message);
+	public NotFoundException(String value) {
+		super(value + message);
 	}
 
 	@Override
 	public int getStatusCode() {
-		return 404;
+		return NOT_FOUND_EXCEPTION.getCode();
 	}
 }
