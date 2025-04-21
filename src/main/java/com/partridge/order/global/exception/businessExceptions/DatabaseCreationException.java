@@ -7,12 +7,12 @@ import com.partridge.order.global.exception.BusinessException;
 public class DatabaseCreationException extends BusinessException {
 	private static final String message = DATABASE_POST_EXCEPTION.getMessage();
 
-	public DatabaseCreationException(String message) {
-		super(message);
+	public DatabaseCreationException(String value) {
+		super(value + message);
 	}
 
 	@Override
 	public int getStatusCode() {
-		return 409;
+		return DATABASE_POST_EXCEPTION.getCode();
 	}
 }

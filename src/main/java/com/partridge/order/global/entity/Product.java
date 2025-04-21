@@ -31,8 +31,8 @@ public class Product {
 	@Column(name = "name", length = 100)
 	private String name;
 
-	@Column(name = "quantity")
-	private Long quantity;
+	@Column(name = "inventory")
+	private Long inventory;
 
 	@Column(name = "price")
 	private Long price;
