@@ -22,6 +22,7 @@ public class MyPageOrderDTO {
 	@ToString
 	@EqualsAndHashCode
 	public static class MyPageResponseOrder {
+		private final Long orderId;
 		private final String key;
 		private final Long totalPrice;
 		private final Long deliveryFee;

@@ -10,7 +10,10 @@ public enum ExceptionEnum {
 	DUPLICATE_ORDER_REQUEST_EXCEPTION("중복된 주문 요청입니다.", 409),
 	EXPIRED_ORDER_EXCEPTION("만료된 주문입니다.", 400),
 	PAYMENT_GATEWAY_FAIL_EXCEPTION("의 결제가 실패했습니다.", 400),
-	SOLD_OUT_EXCEPTION("의 재고가 부족합니다.", 409);
+	SOLD_OUT_EXCEPTION("의 재고가 부족합니다.", 409),
+	PAYMENY_ALREADY_COMPLETE_EXCEPTION("이미 완료된 결제입니다.", 400),
+	DUPLICATE_PAYMENT_EXCEPTION("중복된 결제입니다.", 409),
+	ACQUIRE_LOCK_TIME_OUT_EXCEPTION("처리에 시간이 초과되었습니다", 408);
 
 	ExceptionEnum(String message, Integer code) {
 		this.message = message;

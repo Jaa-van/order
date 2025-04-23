@@ -5,6 +5,8 @@ import static com.partridge.order.global.util.KeyUtil.*;
 import com.partridge.order.global.entity.Product;
 import com.querydsl.core.annotations.QueryProjection;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,8 +18,11 @@ public class ProductPostDTO {
 	@ToString
 	@EqualsAndHashCode
 	public static class Request {
+		@NotBlank
 		private final String name;
+		@NotNull
 		private final Long inventory;
+		@NotNull
 		private final Long price;
 		private final String description;
 

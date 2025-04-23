@@ -13,6 +13,7 @@ import com.partridge.order.domain.cart.dto.CartListDTO;
 import com.partridge.order.domain.cart.dto.CartPostDTO;
 import com.partridge.order.domain.cart.service.CartService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -27,7 +28,7 @@ public class CartController {
 	}
 
 	@PostMapping("")
-	public ResponseEntity<Void> postCart(@RequestBody CartPostDTO.Request request) {
+	public ResponseEntity<Void> postCart(@Valid @RequestBody CartPostDTO.Request request) {
 		cartService.postCart(request);
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}

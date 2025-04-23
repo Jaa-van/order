@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.partridge.order.domain.order.dto.OrderPostDTO;
+import com.partridge.order.domain.order.dto.OrderPostKeyDTO;
 import com.partridge.order.domain.order.service.OrderService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -19,12 +21,12 @@ public class OrderController {
 	private final OrderService orderService;
 
 	@PostMapping("/key")
-	public ResponseEntity<String> postKey() {
+	public ResponseEntity<OrderPostKeyDTO.Resposne> postKey() {
 		return ResponseEntity.status(HttpStatus.CREATED).body(orderService.postOrderKey());
 	}
 
 	@PostMapping("")
-	public ResponseEntity<OrderPostDTO.Response> postOrder(@RequestBody OrderPostDTO.Request request) {
+	public ResponseEntity<OrderPostDTO.Response> postOrder(@Valid @RequestBody OrderPostDTO.Request request) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(orderService.postOrder(request));
 	}
 }

@@ -16,6 +16,7 @@ public interface OrderProductRepotisory extends JpaRepository<OrderProduct, Long
 	@Query(value = "select op.order_id, op.product_id, op.quantity, p.name, p.inventory"
 		+ " from order_product op"
 		+ " inner join product p on op.product_id = p.product_id"
-		+ " where op.order_id = :orderId", nativeQuery = true)
+		+ " where op.order_id = :orderId "
+		+ "FOR UPDATE", nativeQuery = true)
 	List<PaymentPostDTO.OrderProductInventory> getInventoryByOrderId(Long orderId);
 }

@@ -5,6 +5,7 @@ import static com.partridge.order.global.util.KeyUtil.*;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.partridge.order.domain.product.dto.ProductDTO;
 import com.partridge.order.domain.product.dto.ProductListDTO;
@@ -13,6 +14,7 @@ import com.partridge.order.domain.product.repository.ProductRepository;
 import com.partridge.order.global.constant.ConstantValue;
 import com.partridge.order.global.entity.Product;
 import com.partridge.order.global.exception.businessExceptions.NotFoundException;
+import com.partridge.order.global.logger.Log;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,20 +23,22 @@ import lombok.RequiredArgsConstructor;
 public class ProductService {
 	private final ProductRepository productRepository;
 
+	@Log
 	public ProductDTO.Response getProduct(Long productId) {
 		return productRepository.findById(productId)
 			.map(this::productResponseBuilder)
-			.orElseThrow(() -> new NotFoundException(ConstantValue.PRODUCT));
+			.orElseThrow(() -> new NotFoundException(ConstantValue.PRODUCT_KR));
 	}
 
+	@Log
 	public ProductListDTO.Response getProductList(ProductListDTO.Request request) {
 		return productListResponseBuilder(productRepository.getProductsByKeywordAndSortByOrder(request));
 	}
 
+	@Log
+	@Transactional
 	public ProductPostDTO.Response postProduct(ProductPostDTO.Request request) {
-		return productRepository.findById(productRepository.save(postRequestToEntity(request)).getId())
-			.map(this::productRegisterResponseBuilder)
-			.orElseThrow(() -> new NotFoundException(ConstantValue.PRODUCT));
+		return productPostResponseBuilder(productRepository.save(postRequestToEntity(request)));
 	}
 
 	private Product postRequestToEntity(ProductPostDTO.Request request) {
@@ -65,7 +69,7 @@ public class ProductService {
 			.build();
 	}
 
-	private ProductPostDTO.Response productRegisterResponseBuilder(Product product) {
+	private ProductPostDTO.Response productPostResponseBuilder(Product product) {
 		return ProductPostDTO.Response.builder()
 			.productId(product.getId())
 			.key(product.getKey())

@@ -14,6 +14,7 @@ import com.partridge.order.domain.cart.dto.CartPostDTO;
 import com.partridge.order.domain.cart.repository.CartRepository;
 import com.partridge.order.domain.product.repository.ProductRepository;
 import com.partridge.order.global.entity.Product;
+import com.partridge.order.global.logger.Log;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,12 +24,14 @@ public class CartService {
 	private final CartRepository cartRepository;
 	private final ProductRepository productRepository;
 
+	@Log
 	public CartListDTO.Response getCartList(Long userId) {
 		return Optional.of(cartRepository.getCartListByUserId(userId))
 			.map(this::cartListResponseBuilder)
 			.orElse(null);
 	}
 
+	@Log
 	@Transactional
 	public void postCart(CartPostDTO.Request request) {
 		Map<Long, Long> inventoryMap = productRepository.findAllById(request.getCarts().stream()
