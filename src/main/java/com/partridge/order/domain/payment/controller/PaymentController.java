@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.partridge.order.domain.payment.dto.PaymentPostDTO;
 import com.partridge.order.domain.payment.service.PaymentService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -18,7 +19,7 @@ public class PaymentController {
 	private final PaymentService paymentService;
 
 	@PostMapping("")
-	public ResponseEntity<PaymentPostDTO.Response> postPayment(@RequestBody PaymentPostDTO.Request request) {
+	public ResponseEntity<PaymentPostDTO.Response> postPayment(@Valid @RequestBody PaymentPostDTO.Request request) {
 		return ResponseEntity.ok().body(paymentService.postPayment(request));
 	}
 }

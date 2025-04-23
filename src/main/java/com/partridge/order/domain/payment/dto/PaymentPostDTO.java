@@ -1,5 +1,8 @@
 package com.partridge.order.domain.payment.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,8 +13,12 @@ public class PaymentPostDTO {
 	@ToString
 	@EqualsAndHashCode
 	public static class Request {
+		@NotNull
 		private final Long orderId;
+		@NotBlank
+		@Pattern(regexp = "^[a-f0-9\\-]{36}$", message = "key 형식이 잘못되었습니다.")
 		private final String key;
+		@NotNull
 		private final String method;
 
 		public Request(Long orderId, String key, String method) {
@@ -38,6 +45,9 @@ public class PaymentPostDTO {
 	@ToString
 	@EqualsAndHashCode
 	public static class Response {
-		private final String success;
+		private final Long paymentId;
+		private final Long orderId;
+		private final String method;
+		private final String status;
 	}
 }

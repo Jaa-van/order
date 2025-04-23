@@ -1,63 +1,92 @@
 package com.partridge.order.domain.payment.service;
 
 import static com.partridge.order.domain.payment.constant.PaymentCommonCode.*;
+import static com.partridge.order.domain.payment.constant.PaymentConstantValue.*;
 import static com.partridge.order.global.constant.ConstantValue.*;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.partridge.order.domain.order.redis.OrderRedisUtil;
 import com.partridge.order.domain.order.repository.OrderProductRepotisory;
 import com.partridge.order.domain.order.repository.OrderRepository;
 import com.partridge.order.domain.payment.dto.PaymentGatewayDTO;
 import com.partridge.order.domain.payment.dto.PaymentPostDTO;
-import com.partridge.order.domain.payment.exception.SoldOutException;
+import com.partridge.order.domain.payment.exception.PaymentGatewayFailException;
 import com.partridge.order.domain.payment.gateway.PaymentGatewayClient;
 import com.partridge.order.domain.payment.repository.PaymentRepository;
+import com.partridge.order.domain.payment.validator.PaymentValidator;
 import com.partridge.order.domain.product.repository.ProductRepository;
-import com.partridge.order.global.constant.ConstantValue;
-import com.partridge.order.global.entity.Order;
-import com.partridge.order.global.entity.OrderProduct;
 import com.partridge.order.global.entity.Payment;
 import com.partridge.order.global.exception.businessExceptions.NotFoundException;
+import com.partridge.order.global.lock.AcquireLock;
+import com.partridge.order.global.lock.ReleaseLock;
+import com.partridge.order.global.lock.redis.LockRedisUtil;
+import com.partridge.order.global.logger.Log;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentService {
 	private final PaymentRepository paymentRepository;
 	private final PaymentGatewayClient paymentGatewayClient;
 	private final OrderRepository orderRepository;
-	private final OrderProductRepotisory orderProductRepotisory;
 	private final ProductRepository productRepository;
+	private final OrderProductRepotisory orderProductRepotisory;
+	private final PaymentValidator paymentValidator;
+	private final OrderRedisUtil orderRedisUtil;
 
-	@Transactional
+	@Log
+	@Transactional(rollbackFor = Exception.class)
+	// @AcquireLock(lockName = PAYMENT_LOCK_NAME)
+	// @ReleaseLock(lockName = PAYMENT_LOCK_NAME)
 	public PaymentPostDTO.Response postPayment(PaymentPostDTO.Request request) {
-		paymentRepository.save(postRequestToEntity(request));
+		Long orderId = request.getOrderId();
+		List<PaymentPostDTO.OrderProductInventory> productInventory = orderProductRepotisory.getInventoryByOrderId(
+			orderId);
+		paymentValidator.validateProductInventory(productInventory);
+		paymentValidator.validateDuplicatePayment(orderId);
 
-		orderProductRepotisory.getInventoryByOrderId(request.getOrderId())
-			.forEach(orderProductInventory -> {
-				if (orderProductInventory.getQuantity() > orderProductInventory.getInventory()) {
-					throw new SoldOutException(orderProductInventory.getName());
-				}
-			});
+		Payment payment;
+		try {
+			payment = paymentRepository.save(postRequestToCompleteEntity(request));
+			orderRepository.updateStatusByOrderId(orderId, PAYMENT_COMPLETE);
+			orderRedisUtil.setOrderComplete(request.getKey());
+			setProductInventory(productInventory);
 
-		paymentGatewayClient.requestPayment(paymentGatewayRequestBuilder(request,
-			orderRepository.findById(request.getOrderId())
-				.orElseThrow(() -> new NotFoundException(PRODUCT))
-				.getTotalPrice()));
+			paymentGatewayClient.requestPayment(paymentGatewayRequestBuilder(request, getTotalPriceByOrderId(orderId)));
+		} catch (PaymentGatewayFailException e) {
+			payment = paymentRepository.save(postRequestToFailedEntity(request));
+			orderRedisUtil.setOrderComplete(request.getKey());
+		}
 
-		return PaymentPostDTO.Response.builder().success("yes").build();
+		return postResponseBuilder(payment);
 	}
 
-	private Payment postRequestToEntity(PaymentPostDTO.Request request) {
+	private void setProductInventory(List<PaymentPostDTO.OrderProductInventory> productInventory) {
+		productInventory.forEach(product -> {
+			productRepository.updateProductInventory(product.getProductId(), product.getQuantity());
+		});
+	}
+
+	private Payment postRequestToCompleteEntity(PaymentPostDTO.Request request) {
 		return Payment.builder()
 			.orderId(request.getOrderId())
 			.method(request.getMethod())
-			.status(PAYMENT_IN_PROGRESS)
+			.status(PAYMENT_COMPLETE)
+			.build();
+	}
+
+	private Payment postRequestToFailedEntity(PaymentPostDTO.Request request) {
+		return Payment.builder()
+			.orderId(request.getOrderId())
+			.method(request.getMethod())
+			.status(PAYMENT_FAILED)
 			.build();
 	}
 
@@ -67,5 +96,38 @@ public class PaymentService {
 			.key(request.getKey())
 			.price(totalPrice)
 			.build();
+	}
+
+	private Payment paymentStatusToFailed(Payment payment) {
+		return Payment.builder()
+			.id(payment.getId())
+			.orderId(payment.getOrderId())
+			.method(payment.getMethod())
+			.status(PAYMENT_FAILED)
+			.build();
+	}
+
+	private Payment paymentStatusToComplete(Payment payment) {
+		return Payment.builder()
+			.id(payment.getId())
+			.orderId(payment.getOrderId())
+			.method(payment.getMethod())
+			.status(PAYMENT_COMPLETE)
+			.build();
+	}
+
+	private PaymentPostDTO.Response postResponseBuilder(Payment payment) {
+		return PaymentPostDTO.Response.builder()
+			.paymentId(payment.getId())
+			.orderId(payment.getOrderId())
+			.method(payment.getMethod())
+			.status(payment.getStatus())
+			.build();
+	}
+
+	private Long getTotalPriceByOrderId(Long orderId) {
+		return orderRepository.findById(orderId)
+			.orElseThrow(() -> new NotFoundException(ORDER_KR))
+			.getTotalPrice();
 	}
 }

@@ -18,14 +18,14 @@ import org.springframework.stereotype.Component;
 public class LoggerAspect {
 	private static final Logger logger = LoggerFactory.getLogger(LoggerAspect.class);
 
-	@Before("execution(* com.partridge.order..*Service.*(..))")
+	@Before("@annotation(Log)")
 	public void logBefore(JoinPoint joinPoint) {
 		String methodName = joinPoint.getSignature().getName();
 		Object[] args = joinPoint.getArgs();
 		logger.info("Calling method: {} with args: {}", methodName, Arrays.toString(args));
 	}
 
-	@Around("execution(* com.partridge.order..*Service.*(..))")
+	@Around("@annotation(Log)")
 	public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
 		long start = System.currentTimeMillis();
 		try {
@@ -36,13 +36,13 @@ public class LoggerAspect {
 		}
 	}
 
-	@AfterReturning(value = "execution(* com.partridge.order..*Service.*(..))", returning = "result")
+	@AfterReturning(value = "@annotation(Log)", returning = "result")
 	public void logAfterReturning(JoinPoint joinPoint, Object result) {
 		logger.info("{}: {}", joinPoint.getSignature().getName(), result);
 	}
 
-	@AfterThrowing(value = "execution(* com.partridge.order..*Service.*(..))", throwing = "exception")
-	public void logAfterThrowing(Exception exception) {
-		logger.error("{}", exception.getMessage());
-	}
+	// @AfterThrowing(value = "@annotation(Log)", throwing = "exception")
+	// public void logAfterThrowing(Exception exception) {
+	// 	logger.error("{}", exception.getMessage());
+	// }
 }

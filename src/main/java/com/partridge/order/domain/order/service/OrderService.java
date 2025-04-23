@@ -1,30 +1,28 @@
 package com.partridge.order.domain.order.service;
 
 import static com.partridge.order.domain.order.constant.OrderCommonCode.*;
-import static com.partridge.order.domain.order.constant.OrderConstantValue.*;
 import static com.partridge.order.global.util.DeliveryUtil.*;
 import static com.partridge.order.global.util.KeyUtil.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.partridge.order.domain.order.dto.OrderPostDTO;
-import com.partridge.order.domain.order.exception.DuplicateOrderRequestException;
-import com.partridge.order.domain.order.exception.InventoryNotEnoughException;
-import com.partridge.order.domain.order.exception.OrderExpiredException;
+import com.partridge.order.domain.order.dto.OrderPostKeyDTO;
 import com.partridge.order.domain.order.redis.OrderRedisUtil;
 import com.partridge.order.domain.order.repository.OrderProductRepotisory;
 import com.partridge.order.domain.order.repository.OrderRepository;
+import com.partridge.order.domain.order.validator.OrderValidator;
 import com.partridge.order.domain.product.repository.ProductRepository;
 import com.partridge.order.global.entity.Order;
 import com.partridge.order.global.entity.OrderProduct;
 import com.partridge.order.global.entity.OrderProductId;
 import com.partridge.order.global.entity.Product;
+import com.partridge.order.global.logger.Log;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,50 +32,48 @@ public class OrderService {
 	private final OrderRepository orderRepository;
 	private final ProductRepository productRepository;
 	private final OrderProductRepotisory orderProductRepotisory;
-	private final OrderRedisUtil redisUtil;
+	private final OrderRedisUtil orderRedisUtil;
+	private final OrderValidator orderValidator;
 
-	public String postOrderKey() {
+	@Log
+	public OrderPostKeyDTO.Resposne postOrderKey() {
 		String key = generateKey();
-		redisUtil.putOrderKey(ORDER_KEY + key, ORDER_WAITING, ORDER_KEY_TIMEOUT, TimeUnit.MINUTES);
-
-		return key;
+		orderRedisUtil.setOrderWaiting(key);
+		return postKeyResponseBuilder(key);
 	}
 
-	@Transactional
+	@Log
+	@Transactional(rollbackFor = Exception.class)
 	public OrderPostDTO.Response postOrder(OrderPostDTO.Request request) {
-		switch (redisUtil.getOrderKey(ORDER_KEY + request.getKey())) {
-			case ORDER_IN_PROGRESS:
-			case ORDER_COMPLETE:
-				throw new DuplicateOrderRequestException();
-			case ORDER_EXPIRED:
-				throw new OrderExpiredException();
-		}
+		orderValidator.validateOrderKey(request.getKey());
+		Map<Long, OrderPostDTO.ProductInformation> productInformationMap = getProductInformationMap(request);
+		orderValidator.validateProductInventory(request, productInformationMap);
 
-		Order order = orderRepository.save(postRequestToEntity(request,
-			getProductInformationMap(productRepository.findAllById(request.getProducts().stream()
-				.map(OrderPostDTO.RequestProduct::getProductId).toList()))));
+		Order order = orderRepository.save(postRequestToEntity(request, productInformationMap));
+		postOrderProduct(request, order.getId());
 
-		request.getProducts().stream()
-			.map(product -> orderProductBuilder(order.getId(), product.getProductId(), product.getQuantity()))
-			.forEach(orderProductRepotisory::save);
-
-		redisUtil.putOrderKey(ORDER_KEY + request.getKey(), ORDER_IN_PROGRESS, ORDER_KEY_TIMEOUT, TimeUnit.MINUTES);
+		orderRedisUtil.setOrderProgress(request.getKey());
 
 		return postResponseBuilder(order);
 	}
 
-	private Order postRequestToEntity(OrderPostDTO.Request request, Map<Long, OrderPostDTO.ProductInformation> productInformationMap) {
-		Long totalPrice = request.getProducts()
-			.stream()
-			.mapToLong(product -> {
-				if (product.getQuantity() > productInformationMap.get(product.getProductId()).getInventory()) {
-					throw new InventoryNotEnoughException(productInformationMap.get(product.getProductId()).getName());
-				} else {
-					return productInformationMap.get(product.getProductId()).getPrice() * product.getQuantity();
-				}
-			})
-			.sum();
+	private OrderPostKeyDTO.Resposne postKeyResponseBuilder(String key) {
+		return OrderPostKeyDTO.Resposne.builder()
+			.key(key)
+			.build();
+	}
 
+	private void postOrderProduct(OrderPostDTO.Request request, Long orderId) {
+		request.getProducts().stream()
+			.map(product -> orderProductBuilder(orderId, product))
+			.forEach(orderProductRepotisory::save);
+	}
+
+	private Order postRequestToEntity(OrderPostDTO.Request request,
+		Map<Long, OrderPostDTO.ProductInformation> productInformationMap) {
+		Long totalPrice = request.getProducts().stream()
+			.mapToLong(product -> productInformationMap.get(product.getProductId()).getPrice() * product.getQuantity())
+			.sum();
 		return Order.builder()
 			.key(request.getKey())
 			.userId(request.getUserId())
@@ -87,8 +83,10 @@ public class OrderService {
 			.build();
 	}
 
-	private Map<Long, OrderPostDTO.ProductInformation> getProductInformationMap(List<Product> productList) {
-		return productList.stream()
+	private Map<Long, OrderPostDTO.ProductInformation> getProductInformationMap(OrderPostDTO.Request request) {
+		List<Product> products = productRepository.findAllById(request.getProducts().stream()
+			.map(OrderPostDTO.RequestProduct::getProductId).toList());
+		return products.stream()
 			.collect(Collectors.toMap(Product::getId,
 				product ->
 					OrderPostDTO.ProductInformation.builder()
@@ -109,13 +107,13 @@ public class OrderService {
 			.build();
 	}
 
-	private OrderProduct orderProductBuilder(Long orderId, Long productId, Long quantity) {
+	private OrderProduct orderProductBuilder(Long orderId, OrderPostDTO.RequestProduct product) {
 		return OrderProduct.builder()
 			.id(OrderProductId.builder()
 				.orderId(orderId)
-				.productId(productId)
+				.productId(product.getProductId())
 				.build())
-			.quantity(quantity)
+			.quantity(product.getQuantity())
 			.build();
 	}
 

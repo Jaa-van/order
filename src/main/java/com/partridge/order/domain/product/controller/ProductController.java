@@ -14,6 +14,7 @@ import com.partridge.order.domain.product.dto.ProductListDTO;
 import com.partridge.order.domain.product.dto.ProductPostDTO;
 import com.partridge.order.domain.product.service.ProductService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -28,12 +29,12 @@ public class ProductController {
 	}
 
 	@GetMapping("")
-	public ResponseEntity<ProductListDTO.Response> getProductList(ProductListDTO.Request request) {
+	public ResponseEntity<ProductListDTO.Response> getProductList(@Valid ProductListDTO.Request request) {
 		return ResponseEntity.ok().body(productService.getProductList(request));
 	}
 
 	@PostMapping("")
-	public ResponseEntity<ProductPostDTO.Response> postProduct(@RequestBody ProductPostDTO.Request request) {
+	public ResponseEntity<ProductPostDTO.Response> postProduct(@Valid @RequestBody ProductPostDTO.Request request) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(productService.postProduct(request));
 	}
 }

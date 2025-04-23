@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.partridge.order.domain.auth.dto.LoginDTO;
 import com.partridge.order.domain.auth.repository.AuthRepository;
+import com.partridge.order.global.logger.Log;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +19,7 @@ public class AuthService {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final AuthRepository authRepository;
 
+	@Log
 	public LoginDTO.Response login(LoginDTO.Request request) {
 		return Optional.of(request)
 			.filter(req -> authRepository.existsByEmailAndPassword(req.getEmail(), req.getPassword()))

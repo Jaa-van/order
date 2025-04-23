@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.partridge.order.domain.mypage.dto.MyPageOrderDTO;
 import com.partridge.order.domain.mypage.repository.MypageRepository;
 import com.partridge.order.global.entity.Order;
+import com.partridge.order.global.logger.Log;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 public class MypageService {
 	private final MypageRepository mypageRepository;
 
+	@Log
 	public MyPageOrderDTO.Response getMyPageOrderList(Long userId) {
-
 		return myPageResponseBuilder(Optional.of(mypageRepository.findByUserId(userId))
 			.map(this::myPageOrderBuilder)
 			.orElse(null));
@@ -27,6 +28,7 @@ public class MypageService {
 
 	private List<MyPageOrderDTO.MyPageResponseOrder> myPageOrderBuilder(List<Order> orders) {
 		return orders.stream().map(order -> MyPageOrderDTO.MyPageResponseOrder.builder()
+				.orderId(order.getId())
 				.key(order.getKey())
 				.totalPrice(order.getTotalPrice())
 				.deliveryFee(caculateDeliveryFee(order.getDeliveryFee()))
