@@ -20,10 +20,9 @@ import com.partridge.order.domain.payment.repository.PaymentRepository;
 import com.partridge.order.domain.payment.validator.PaymentValidator;
 import com.partridge.order.domain.product.repository.ProductRepository;
 import com.partridge.order.global.entity.Payment;
-import com.partridge.order.global.exception.businessExceptions.NotFoundException;
+import com.partridge.order.global.exception.global.NotFoundException;
 import com.partridge.order.global.lock.AcquireLock;
 import com.partridge.order.global.lock.ReleaseLock;
-import com.partridge.order.global.lock.redis.LockRedisUtil;
 import com.partridge.order.global.logger.Log;
 
 import lombok.RequiredArgsConstructor;
@@ -61,11 +60,15 @@ public class PaymentService {
 
 			paymentGatewayClient.requestPayment(paymentGatewayRequestBuilder(request, getTotalPriceByOrderId(orderId)));
 		} catch (PaymentGatewayFailException e) {
-			payment = paymentRepository.save(postRequestToFailedEntity(request));
-			orderRedisUtil.setOrderComplete(request.getKey());
+			payment = postPaymentWithFailed(request);
+			throw new PaymentGatewayFailException(e.getMessage());
 		}
 
 		return postResponseBuilder(payment);
+	}
+
+	private Payment postPaymentWithFailed(PaymentPostDTO.Request request) {
+		return paymentRepository.save(postRequestToFailedEntity(request));
 	}
 
 	private void setProductInventory(List<PaymentPostDTO.OrderProductInventory> productInventory) {

@@ -50,7 +50,9 @@ public class OrderService {
 		orderValidator.validateProductInventory(request, productInformationMap);
 
 		Order order = orderRepository.save(postRequestToEntity(request, productInformationMap));
-		postOrderProduct(request, order.getId());
+		request.getProducts().stream()
+			.map(product -> orderProductBuilder(order.getId(), product))
+			.forEach(orderProductRepotisory::save);
 
 		orderRedisUtil.setOrderProgress(request.getKey());
 
@@ -61,12 +63,6 @@ public class OrderService {
 		return OrderPostKeyDTO.Resposne.builder()
 			.key(key)
 			.build();
-	}
-
-	private void postOrderProduct(OrderPostDTO.Request request, Long orderId) {
-		request.getProducts().stream()
-			.map(product -> orderProductBuilder(orderId, product))
-			.forEach(orderProductRepotisory::save);
 	}
 
 	private Order postRequestToEntity(OrderPostDTO.Request request,

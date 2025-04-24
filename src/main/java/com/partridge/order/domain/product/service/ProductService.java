@@ -13,7 +13,7 @@ import com.partridge.order.domain.product.dto.ProductPostDTO;
 import com.partridge.order.domain.product.repository.ProductRepository;
 import com.partridge.order.global.constant.ConstantValue;
 import com.partridge.order.global.entity.Product;
-import com.partridge.order.global.exception.businessExceptions.NotFoundException;
+import com.partridge.order.global.exception.global.NotFoundException;
 import com.partridge.order.global.logger.Log;
 
 import lombok.RequiredArgsConstructor;
