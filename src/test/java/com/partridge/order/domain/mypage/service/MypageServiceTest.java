@@ -47,13 +47,4 @@ class MypageServiceTest {
 		assertThat(response.getOrders().get(0).getDeliveryFee()).isEqualTo(0L);
 		assertThat(response.getOrders().get(0).getOrderId()).isEqualTo(2L);
 	}
-	//
-	// @Test
-	// void getMyPageOrderList_should_return_empty_list_when_user_has_no_order() {
-	// 	//given
-	//
-	// 	//when
-	//
-	// 	//then
-	// }
 }

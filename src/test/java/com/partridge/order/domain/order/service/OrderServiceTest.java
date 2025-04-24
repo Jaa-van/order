@@ -1,19 +1,16 @@
 package com.partridge.order.domain.order.service;
 
-import static com.partridge.order.domain.order.constant.OrderCommonCode.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static reactor.core.publisher.Mono.*;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.partridge.order.domain.order.dto.OrderPostDTO;
@@ -29,10 +26,6 @@ import com.partridge.order.domain.product.repository.ProductRepository;
 import com.partridge.order.global.entity.Order;
 import com.partridge.order.global.entity.Product;
 import com.partridge.order.global.util.KeyUtil;
-
-import static org.assertj.core.api.Assertions.*;
-
-import javax.crypto.KeyGenerator;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
