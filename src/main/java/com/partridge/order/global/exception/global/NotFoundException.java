@@ -1,4 +1,4 @@
-package com.partridge.order.global.exception.businessExceptions;
+package com.partridge.order.global.exception.global;
 
 import static com.partridge.order.global.exception.ExceptionEnum.*;
 

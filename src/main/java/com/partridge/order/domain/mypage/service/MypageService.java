@@ -23,7 +23,7 @@ public class MypageService {
 	public MyPageOrderDTO.Response getMyPageOrderList(Long userId) {
 		return myPageResponseBuilder(Optional.of(mypageRepository.findByUserId(userId))
 			.map(this::myPageOrderBuilder)
-			.orElse(null));
+			.orElse(List.of(MyPageOrderDTO.MyPageResponseOrder.builder().build())));
 	}
 
 	private List<MyPageOrderDTO.MyPageResponseOrder> myPageOrderBuilder(List<Order> orders) {

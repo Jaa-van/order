@@ -50,7 +50,7 @@ public class LockRedisUtil {
 	// }
 
 	public void getLock(String lockName) {
-		int maxRetries = 30;
+		int maxRetries = 100;
 		int retryCount = 0;
 		log.info("Try to get lock thread: {}", Thread.currentThread().getName());
 		while (retryCount < maxRetries) {
