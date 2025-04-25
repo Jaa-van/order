@@ -56,7 +56,8 @@ public class PaymentService {
 			payment = paymentRepository.save(postRequestToCompleteEntity(request));
 			orderRepository.updateStatusByOrderId(orderId, PAYMENT_COMPLETE);
 			orderRedisUtil.setOrderComplete(request.getKey());
-			setProductInventory(productInventory);
+			productInventory.forEach(
+				product -> productRepository.updateProductInventory(product.getProductId(), product.getQuantity()));
 
 			paymentGatewayClient.requestPayment(paymentGatewayRequestBuilder(request, getTotalPriceByOrderId(orderId)));
 		} catch (PaymentGatewayFailException e) {
@@ -69,12 +70,6 @@ public class PaymentService {
 
 	private void postPaymentWithFailed(PaymentPostDTO.Request request) {
 		paymentRepository.save(postRequestToFailedEntity(request));
-	}
-
-	private void setProductInventory(List<PaymentPostDTO.OrderProductInventory> productInventory) {
-		productInventory.forEach(product -> {
-			productRepository.updateProductInventory(product.getProductId(), product.getQuantity());
-		});
 	}
 
 	private Payment postRequestToCompleteEntity(PaymentPostDTO.Request request) {
