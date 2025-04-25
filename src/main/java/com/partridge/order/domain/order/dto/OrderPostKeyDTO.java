@@ -9,7 +9,7 @@ public class OrderPostKeyDTO {
 	@Getter
 	@Builder
 	@ToString
-	@EqualsAndHashCode
+	@EqualsAndHashCode(of = {"key"})
 	public static class Resposne {
 		private final String key;
 	}

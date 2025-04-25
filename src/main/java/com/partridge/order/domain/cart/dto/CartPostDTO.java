@@ -2,15 +2,12 @@ package com.partridge.order.domain.cart.dto;
 
 import java.util.List;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Builder;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -18,7 +15,7 @@ import lombok.ToString;
 public class CartPostDTO {
 	@Getter
 	@ToString
-	@EqualsAndHashCode
+	@EqualsAndHashCode(of = {"userId", "carts"})
 	public static class Request {
 		@NotNull
 		private final Long userId;
@@ -35,7 +32,7 @@ public class CartPostDTO {
 
 	@Getter
 	@ToString
-	@EqualsAndHashCode
+	@EqualsAndHashCode(of = {"productId", "quantity"})
 	public static class RequestCart {
 		@NotNull
 		@Min(1)

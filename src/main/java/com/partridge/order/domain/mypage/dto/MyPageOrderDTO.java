@@ -11,7 +11,7 @@ public class MyPageOrderDTO {
 	@Getter
 	@Builder
 	@ToString
-	@EqualsAndHashCode
+	@EqualsAndHashCode(of = {"orders"})
 	public static class Response {
 		private final List<MyPageResponseOrder> orders;
 		private final Long totalCount;

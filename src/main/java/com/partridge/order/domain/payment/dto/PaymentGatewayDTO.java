@@ -9,7 +9,7 @@ public class PaymentGatewayDTO {
 	@Getter
 	@Builder
 	@ToString
-	@EqualsAndHashCode
+	@EqualsAndHashCode(of = {"key", "price", "method"})
 	public static class Request {
 		private final String key;
 		private final Long price;
@@ -19,7 +19,7 @@ public class PaymentGatewayDTO {
 	@Getter
 	@Builder
 	@ToString
-	@EqualsAndHashCode
+	@EqualsAndHashCode(of = {"status"})
 	public static class Response {
 		private final String status;
 	}
