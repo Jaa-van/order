@@ -8,7 +8,7 @@ import lombok.ToString;
 public class LoginDTO {
 	@Getter
 	@ToString
-	@EqualsAndHashCode
+	@EqualsAndHashCode(of = {"email"})
 	public static class Request {
 		private final String email;
 		private final String password;
@@ -22,7 +22,6 @@ public class LoginDTO {
 	@Getter
 	@Builder
 	@ToString
-	@EqualsAndHashCode
 	public static class Response {
 		private final String token;
 	}

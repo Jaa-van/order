@@ -60,15 +60,15 @@ public class PaymentService {
 
 			paymentGatewayClient.requestPayment(paymentGatewayRequestBuilder(request, getTotalPriceByOrderId(orderId)));
 		} catch (PaymentGatewayFailException e) {
-			payment = postPaymentWithFailed(request);
+			postPaymentWithFailed(request);
 			throw new PaymentGatewayFailException(e.getMessage());
 		}
 
 		return postResponseBuilder(payment);
 	}
 
-	private Payment postPaymentWithFailed(PaymentPostDTO.Request request) {
-		return paymentRepository.save(postRequestToFailedEntity(request));
+	private void postPaymentWithFailed(PaymentPostDTO.Request request) {
+		paymentRepository.save(postRequestToFailedEntity(request));
 	}
 
 	private void setProductInventory(List<PaymentPostDTO.OrderProductInventory> productInventory) {
@@ -93,7 +93,7 @@ public class PaymentService {
 			.build();
 	}
 
-	private PaymentGatewayDTO.Request paymentGatewayRequestBuilder(PaymentPostDTO.Request request, Long totalPrice) {
+	public PaymentGatewayDTO.Request paymentGatewayRequestBuilder(PaymentPostDTO.Request request, Long totalPrice) {
 		return PaymentGatewayDTO.Request.builder()
 			.method(request.getMethod())
 			.key(request.getKey())
@@ -101,23 +101,6 @@ public class PaymentService {
 			.build();
 	}
 
-	private Payment paymentStatusToFailed(Payment payment) {
-		return Payment.builder()
-			.id(payment.getId())
-			.orderId(payment.getOrderId())
-			.method(payment.getMethod())
-			.status(PAYMENT_FAILED)
-			.build();
-	}
-
-	private Payment paymentStatusToComplete(Payment payment) {
-		return Payment.builder()
-			.id(payment.getId())
-			.orderId(payment.getOrderId())
-			.method(payment.getMethod())
-			.status(PAYMENT_COMPLETE)
-			.build();
-	}
 
 	private PaymentPostDTO.Response postResponseBuilder(Payment payment) {
 		return PaymentPostDTO.Response.builder()
@@ -128,7 +111,7 @@ public class PaymentService {
 			.build();
 	}
 
-	private Long getTotalPriceByOrderId(Long orderId) {
+	public Long getTotalPriceByOrderId(Long orderId) {
 		return orderRepository.findById(orderId)
 			.orElseThrow(() -> new NotFoundException(ORDER_KR))
 			.getTotalPrice();

@@ -10,8 +10,8 @@ import lombok.ToString;
 
 public class PaymentPostDTO {
 	@Getter
+	@Builder
 	@ToString
-	@EqualsAndHashCode
 	public static class Request {
 		@NotNull
 		private final Long orderId;
@@ -31,7 +31,7 @@ public class PaymentPostDTO {
 	@Getter
 	@Builder
 	@ToString
-	@EqualsAndHashCode
+	@EqualsAndHashCode(of = {"orderId", "productId", "quantity", "inventory"})
 	public static class OrderProductInventory {
 		private final Long orderId;
 		private final Long productId;
@@ -43,7 +43,7 @@ public class PaymentPostDTO {
 	@Getter
 	@Builder
 	@ToString
-	@EqualsAndHashCode
+	@EqualsAndHashCode(of = {"paymentId", "status"})
 	public static class Response {
 		private final Long paymentId;
 		private final Long orderId;

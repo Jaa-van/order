@@ -11,16 +11,9 @@ import lombok.ToString;
 
 public class CartListDTO {
 	@Getter
-	@ToString
-	@EqualsAndHashCode
-	public static class Request {
-		private Long userId;
-	}
-
-	@Getter
 	@Builder
 	@ToString
-	@EqualsAndHashCode
+	@EqualsAndHashCode(of = {"carts"})
 	public static class Response {
 		private List<ResponseCart> carts;
 		private Integer totalCount;
@@ -29,7 +22,7 @@ public class CartListDTO {
 	@Getter
 	@Builder
 	@ToString
-	@EqualsAndHashCode
+	@EqualsAndHashCode(of = {"productId", "quantity", "inventory"})
 	public static class ResponseCart {
 		private Long productId;
 		private Long quantity;
