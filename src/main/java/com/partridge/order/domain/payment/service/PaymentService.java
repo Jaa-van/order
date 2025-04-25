@@ -62,6 +62,7 @@ public class PaymentService {
 			paymentGatewayClient.requestPayment(paymentGatewayRequestBuilder(request, getTotalPriceByOrderId(orderId)));
 		} catch (PaymentGatewayFailException e) {
 			postPaymentWithFailed(request);
+			orderRedisUtil.setOrderWaiting(request.getKey());
 			throw new PaymentGatewayFailException(e.getMessage());
 		}
 
