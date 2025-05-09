@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.partridge.order.context.order.controller.dto.OrderPostDTO;
+import com.partridge.order.context.order.controller.dto.OrderPostDto;
 import com.partridge.order.context.order.exception.InventoryNotEnoughException;
 import com.partridge.order.context.product.service.dto.ProductDto;
 
@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderValidator {
 
-	public void validateProductInventory(OrderPostDTO.Request request,
+	public void validateProductInventory(OrderPostDto.Request request,
 		Map<Long, ProductDto> productDtoMap) {
 		request.getProducts().forEach(product -> {
 			if (product.getQuantity() > productDtoMap.get(product.getProductId()).getInventory()) {

@@ -5,7 +5,7 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.partridge.order.context.order.controller.dto.OrderPostDTO;
+import com.partridge.order.context.order.controller.dto.OrderPostDto;
 import com.partridge.order.context.order.domain.model.Order;
 import com.partridge.order.context.order.repository.OrderProductRepotisory;
 import com.partridge.order.context.order.repository.OrderRepository;
@@ -26,7 +26,7 @@ public class OrderWriter {
 
 	@Log
 	@Transactional
-	public Order postOrder(OrderPostDTO.Request request, Map<Long, ProductDto> productDtoMap) {
+	public Order postOrder(OrderPostDto.Request request, Map<Long, ProductDto> productDtoMap) {
 		Order order = orderRepository.save(orderDtoMapper.toEntity(request, productDtoMap));
 		request.getProducts().stream()
 			.map(product -> orderProductDtoMapper.toEntity(order.getId(), product))

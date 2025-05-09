@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-public class OrderPostKeyDTO {
+public class OrderPostKeyDto {
 	@Getter
 	@Builder
 	@ToString

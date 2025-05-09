@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.partridge.order.context.mypage.dto.MyPageOrderDTO;
+import com.partridge.order.context.order.controller.dto.OrderListDto;
 import com.partridge.order.context.mypage.repository.MypageRepository;
 import com.partridge.order.context.order.domain.model.Order;
 
@@ -39,7 +39,7 @@ class MypageServiceTest {
 		when(mypageRepository.findByUserId(userId)).thenReturn(orderList);
 
 		//when
-		MyPageOrderDTO.Response response = mypageService.getMyPageOrderList(userId);
+		OrderListDto.Response response = mypageService.getMyPageOrderList(userId);
 
 		//then
 		assertThat(response.getOrders()).hasSize(1);

@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.partridge.order.context.order.controller.dto.OrderPostDTO;
+import com.partridge.order.context.order.controller.dto.OrderPostDto;
 import com.partridge.order.context.order.exception.DuplicateOrderRequestException;
 import com.partridge.order.context.order.exception.InventoryNotEnoughException;
 import com.partridge.order.context.order.exception.OrderExpiredException;
@@ -74,12 +74,12 @@ class OrderServiceTest {
 	@Test
 	void postOrder_should_return_post_response_when_post_order_success() {
 		//given
-		OrderPostDTO.Request request = fakeOrderRequestBuilder();
+		OrderPostDto.Request request = fakeOrderRequestBuilder();
 		List<Product> mockProducts = fakeProductListBuilder();
 		Order savedOrder = fakeOrderBuilder(request);
 
 		when(mockedProductRepository.findAllById(
-			request.getProducts().stream().map(OrderPostDTO.RequestProduct::getProductId).toList())).thenReturn(
+			request.getProducts().stream().map(OrderPostDto.RequestProduct::getProductId).toList())).thenReturn(
 			mockProducts);
 		when(mockedOrderRepository.save(any(Order.class))).thenReturn(savedOrder);
 
@@ -102,7 +102,7 @@ class OrderServiceTest {
 	void postOrder_should_throw_duplicate_order_request_exception_when_order_is_in_progress() {
 		//given
 		orderFacade = spy(mockOrderRedisUtilWithoutValidator());
-		OrderPostDTO.Request request = fakeOrderRequestBuilder();
+		OrderPostDto.Request request = fakeOrderRequestBuilder();
 
 		when(mockedOrderRedisUtil.getOrder(request.getKey())).thenReturn(ORDER_IN_PROGRESS.getCode());
 
@@ -115,7 +115,7 @@ class OrderServiceTest {
 	void postOrder_should_throw_duplicate_oreder_request_exception_when_order_is_complete() {
 		//given
 		orderFacade = spy(mockOrderRedisUtilWithoutValidator());
-		OrderPostDTO.Request request = fakeOrderRequestBuilder();
+		OrderPostDto.Request request = fakeOrderRequestBuilder();
 
 		when(mockedOrderRedisUtil.getOrder(request.getKey())).thenReturn(ORDER_COMPLETE.getCode());
 
@@ -128,7 +128,7 @@ class OrderServiceTest {
 	void postOrder_should_throw_order_expired_exception_when_order_key_is_expired() {
 		//given
 		orderFacade = spy(mockOrderRedisUtilWithoutValidator());
-		OrderPostDTO.Request request = fakeOrderRequestBuilder();
+		OrderPostDto.Request request = fakeOrderRequestBuilder();
 
 		when(mockedOrderRedisUtil.getOrder(request.getKey())).thenReturn(ORDER_EXPIRED.getCode());
 
@@ -141,7 +141,7 @@ class OrderServiceTest {
 	void postOrder_should_throw_inventory_not_enough_exception_when_inventory_is_not_enough() {
 		//given
 		orderFacade = spy(mockOrderRedisUtilWithoutValidator());
-		OrderPostDTO.Request request = fakeOrderRequestBuilder();
+		OrderPostDto.Request request = fakeOrderRequestBuilder();
 		List<Product> mockProducts = fakeInventoryNotEnoughProductListBuilder();
 
 		when(mockedProductRepository.findAllById(anyList())).thenReturn(mockProducts);
@@ -157,14 +157,14 @@ class OrderServiceTest {
 			mockedOrderWriter);
 	}
 
-	private OrderPostDTO.Request fakeOrderRequestBuilder() {
+	private OrderPostDto.Request fakeOrderRequestBuilder() {
 		Long userId = 1L;
 		String key = "fakeDuplicateKey";
-		List<OrderPostDTO.RequestProduct> products = List.of(OrderPostDTO.RequestProduct.builder()
+		List<OrderPostDto.RequestProduct> products = List.of(OrderPostDto.RequestProduct.builder()
 				.productId(2L)
 				.quantity(3L)
 			.build());
-		return OrderPostDTO.Request.builder()
+		return OrderPostDto.Request.builder()
 			.userId(userId)
 			.key(key)
 			.products(products)
@@ -189,7 +189,7 @@ class OrderServiceTest {
 			.build());
 	}
 
-	private Order fakeOrderBuilder(OrderPostDTO.Request request) {
+	private Order fakeOrderBuilder(OrderPostDto.Request request) {
 		return Order.builder()
 			.id(2L)
 			.userId(request.getUserId())

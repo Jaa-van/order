@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-public class OrderPostDTO {
+public class OrderPostDto {
 	@Getter
 	@Builder
 	@ToString

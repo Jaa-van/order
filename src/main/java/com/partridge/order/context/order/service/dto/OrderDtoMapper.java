@@ -7,13 +7,13 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.partridge.order.context.order.controller.dto.OrderPostDTO;
+import com.partridge.order.context.order.controller.dto.OrderPostDto;
 import com.partridge.order.context.order.domain.model.Order;
 import com.partridge.order.context.product.service.dto.ProductDto;
 
 @Component
 public class OrderDtoMapper {
-	public Order toEntity(OrderPostDTO.Request request, Map<Long, ProductDto> productDtoMap) {
+	public Order toEntity(OrderPostDto.Request request, Map<Long, ProductDto> productDtoMap) {
 		Long totalPrice = request.getProducts().stream()
 			.mapToLong(product -> productDtoMap.get(product.getProductId()).getPrice() * product.getQuantity())
 			.sum();

@@ -1,4 +1,4 @@
-package com.partridge.order.context.mypage.dto;
+package com.partridge.order.context.order.controller.dto;
 
 import java.util.List;
 
@@ -7,13 +7,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-public class MyPageOrderDTO {
+public class OrderListDto {
 	@Getter
 	@Builder
 	@ToString
 	@EqualsAndHashCode(of = {"orders"})
 	public static class Response {
-		private final List<MyPageResponseOrder> orders;
+		private final List<ResponseOrder> orders;
 		private final Long totalCount;
 	}
 
@@ -21,7 +21,7 @@ public class MyPageOrderDTO {
 	@Builder
 	@ToString
 	@EqualsAndHashCode
-	public static class MyPageResponseOrder {
+	public static class ResponseOrder {
 		private final Long orderId;
 		private final String key;
 		private final Long totalPrice;
