@@ -11,14 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.partridge.order.context.order.infra.OrderRedisUtil;
 import com.partridge.order.context.order.repository.OrderProductRepotisory;
 import com.partridge.order.context.order.repository.OrderRepository;
-import com.partridge.order.context.payment.dto.PaymentGatewayDTO;
-import com.partridge.order.context.payment.dto.PaymentPostDTO;
+import com.partridge.order.context.payment.controller.dto.PaymentGatewayDTO;
+import com.partridge.order.context.payment.controller.dto.PaymentPostDTO;
 import com.partridge.order.context.payment.exception.PaymentGatewayFailException;
-import com.partridge.order.context.payment.gateway.PaymentGatewayClient;
+import com.partridge.order.context.payment.infra.payment.PaymentGatewayClient;
 import com.partridge.order.context.payment.repository.PaymentRepository;
 import com.partridge.order.context.payment.validator.PaymentValidator;
 import com.partridge.order.context.product.repository.ProductRepository;
-import com.partridge.order.global.entity.Payment;
+import com.partridge.order.context.payment.domain.model.Payment;
 import com.partridge.order.global.exception.global.NotFoundException;
 import com.partridge.order.global.logger.Log;
 

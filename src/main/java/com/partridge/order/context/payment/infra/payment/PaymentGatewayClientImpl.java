@@ -1,8 +1,8 @@
-package com.partridge.order.context.payment.gateway;
+package com.partridge.order.context.payment.infra.payment;
 
 import org.springframework.stereotype.Component;
 
-import com.partridge.order.context.payment.dto.PaymentGatewayDTO;
+import com.partridge.order.context.payment.controller.dto.PaymentGatewayDTO;
 import com.partridge.order.context.payment.exception.PaymentGatewayFailException;
 import com.partridge.order.global.constant.ConstantValue;
 

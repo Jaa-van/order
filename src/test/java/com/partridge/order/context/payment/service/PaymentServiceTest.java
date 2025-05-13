@@ -17,17 +17,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.partridge.order.context.order.infra.OrderRedisUtil;
 import com.partridge.order.context.order.repository.OrderProductRepotisory;
 import com.partridge.order.context.order.repository.OrderRepository;
-import com.partridge.order.context.payment.dto.PaymentPostDTO;
+import com.partridge.order.context.payment.controller.dto.PaymentPostDTO;
 import com.partridge.order.context.payment.exception.DuplicatePaymentException;
 import com.partridge.order.context.payment.exception.PaymentAlreadyCompleteException;
 import com.partridge.order.context.payment.exception.PaymentGatewayFailException;
 import com.partridge.order.context.payment.exception.SoldOutException;
-import com.partridge.order.context.payment.gateway.PaymentGatewayClient;
+import com.partridge.order.context.payment.infra.payment.PaymentGatewayClient;
 import com.partridge.order.context.payment.repository.PaymentRepository;
 import com.partridge.order.context.payment.validator.PaymentValidator;
 import com.partridge.order.context.product.repository.ProductRepository;
 import com.partridge.order.context.order.domain.model.Order;
-import com.partridge.order.global.entity.Payment;
+import com.partridge.order.context.payment.domain.model.Payment;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {

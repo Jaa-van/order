@@ -1,4 +1,4 @@
-package com.partridge.order.context.payment.dto;
+package com.partridge.order.context.payment.controller.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

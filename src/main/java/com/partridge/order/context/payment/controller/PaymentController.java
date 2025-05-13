@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.partridge.order.context.payment.dto.PaymentPostDTO;
+import com.partridge.order.context.payment.controller.dto.PaymentPostDTO;
 import com.partridge.order.context.payment.service.PaymentService;
 
 import jakarta.validation.Valid;

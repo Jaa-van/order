@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.partridge.order.global.entity.Payment;
+import com.partridge.order.context.payment.domain.model.Payment;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {

@@ -14,12 +14,4 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderValidator {
 
-	public void validateProductInventory(OrderPostDto.Request request,
-		Map<Long, ProductDto> productDtoMap) {
-		request.getProducts().forEach(product -> {
-			if (product.getQuantity() > productDtoMap.get(product.getProductId()).getInventory()) {
-				throw new InventoryNotEnoughException(productDtoMap.get(product.getProductId()).getName());
-			}
-			});
-	}
 }

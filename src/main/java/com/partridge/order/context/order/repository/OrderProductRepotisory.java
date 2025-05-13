@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.partridge.order.context.payment.dto.PaymentPostDTO;
+import com.partridge.order.context.payment.controller.dto.PaymentPostDTO;
 import com.partridge.order.context.order.domain.model.OrderProduct;
 
 @Repository

@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.partridge.order.context.payment.dto.PaymentPostDTO;
+import com.partridge.order.context.payment.controller.dto.PaymentPostDTO;
 import com.partridge.order.context.payment.exception.DuplicatePaymentException;
 import com.partridge.order.context.payment.exception.PaymentAlreadyCompleteException;
 import com.partridge.order.context.payment.exception.SoldOutException;

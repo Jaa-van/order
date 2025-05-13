@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.partridge.order.context.order.controller.dto.OrderPostDto;
 import com.partridge.order.context.order.domain.model.Order;
-import com.partridge.order.context.order.domain.validator.OrderValidator;
 import com.partridge.order.context.order.infra.OrderRedisUtil;
 import com.partridge.order.context.order.service.validator.OrderServiceValidator;
 import com.partridge.order.context.product.service.ProductReader;
@@ -22,7 +21,6 @@ public class OrderFacade {
 	private final OrderRedisUtil orderRedisUtil;
 	private final OrderServiceValidator orderServiceValidator;
 	private final ProductReader productReader;
-	private final OrderValidator orderValidator;
 	private final OrderWriter orderWriter;
 	private final OrderReader orderReader;
 
@@ -37,7 +35,7 @@ public class OrderFacade {
 		orderServiceValidator.validateOrderKey(request.getKey());
 		Map<Long, ProductDto> productDtoMap = productReader.getProductDtoMapByProductIdList(
 			request.getProducts().stream().map(OrderPostDto.RequestProduct::getProductId).toList());
-		orderValidator.validateProductInventory(request, productDtoMap);
+		orderServiceValidator.validateProductInventory(request, productDtoMap);
 
 		Order order = orderWriter.postOrder(request, productDtoMap);
 
