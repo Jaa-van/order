@@ -26,7 +26,9 @@ public class OrderServiceValidator {
 	public void validateOrderKey(String key) {
 		String status = orderRedisUtil.getOrder(key);
 
-		if (ORDER_IN_PROGRESS.getCode().equals(status) || ORDER_COMPLETE.getCode().equals(status)) {
+		if (ORDER_WAITING.getCode().equals(status)) {
+			return;
+		} else if (ORDER_IN_PROGRESS.getCode().equals(status) || ORDER_COMPLETE.getCode().equals(status)) {
 			throw new DuplicateOrderRequestException();
 		} else if (ORDER_EXPIRED.getCode().equals(status)) {
 			throw new OrderExpiredException();

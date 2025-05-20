@@ -1,17 +1,14 @@
 package com.partridge.order.context.payment.controller.dto;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
 import com.partridge.order.context.payment.domain.model.Payment;
 
-@Component
-public class PaymentResponseMapper {
-	public PaymentPostDTO.Response toPaymentPostResponse(Payment payment) {
-		return PaymentPostDTO.Response.builder()
-			.paymentId(payment.getId())
-			.orderId(payment.getOrderId())
-			.method(payment.getMethod())
-			.status(payment.getStatus())
-			.build();
-	}
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface PaymentResponseMapper {
+
+	@Mapping(target = "paymentId", source = "id")
+	public PaymentPostDTO.Response toResponse(Payment payment);
 }

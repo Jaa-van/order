@@ -22,6 +22,6 @@ public class PaymentController {
 
 	@PostMapping("")
 	public ResponseEntity<PaymentPostDTO.Response> postPayment(@Valid @RequestBody PaymentPostDTO.Request request) {
-		return ResponseEntity.ok().body(paymentResponseMapper.toPaymentPostResponse(paymentFacade.postPayment(request)));
+		return ResponseEntity.ok().body(paymentResponseMapper.toResponse(paymentFacade.postPayment(request)));
 	}
 }
