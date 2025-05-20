@@ -31,18 +31,6 @@ public class PaymentPostDTO {
 	@Getter
 	@Builder
 	@ToString
-	@EqualsAndHashCode(of = {"orderId", "productId", "quantity", "inventory"})
-	public static class OrderProductInventory {
-		private final Long orderId;
-		private final Long productId;
-		private final Long quantity;
-		private final String name;
-		private final Long inventory;
-	}
-
-	@Getter
-	@Builder
-	@ToString
 	@EqualsAndHashCode(of = {"paymentId", "status"})
 	public static class Response {
 		private final Long paymentId;

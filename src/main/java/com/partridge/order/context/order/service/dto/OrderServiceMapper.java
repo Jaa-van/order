@@ -12,7 +12,7 @@ import com.partridge.order.context.order.domain.model.Order;
 import com.partridge.order.context.product.service.dto.ProductDto;
 
 @Component
-public class OrderDtoMapper {
+public class OrderServiceMapper {
 	public Order toEntity(OrderPostDto.Request request, Map<Long, ProductDto> productDtoMap) {
 		Long totalPrice = request.getProducts().stream()
 			.mapToLong(product -> productDtoMap.get(product.getProductId()).getPrice() * product.getQuantity())

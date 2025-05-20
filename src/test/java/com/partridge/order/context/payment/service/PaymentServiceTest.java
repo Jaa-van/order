@@ -14,109 +14,121 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.partridge.order.context.order.domain.model.Order;
 import com.partridge.order.context.order.infra.OrderRedisUtil;
-import com.partridge.order.context.order.repository.OrderProductRepotisory;
-import com.partridge.order.context.order.repository.OrderRepository;
+import com.partridge.order.context.order.service.OrderReader;
+import com.partridge.order.context.order.service.OrderWriter;
+import com.partridge.order.context.order.service.dto.OrderProductInventory;
 import com.partridge.order.context.payment.controller.dto.PaymentPostDTO;
+import com.partridge.order.context.payment.domain.model.Payment;
 import com.partridge.order.context.payment.exception.DuplicatePaymentException;
 import com.partridge.order.context.payment.exception.PaymentAlreadyCompleteException;
 import com.partridge.order.context.payment.exception.PaymentGatewayFailException;
 import com.partridge.order.context.payment.exception.SoldOutException;
+import com.partridge.order.context.payment.infra.dto.PaymentGatewayMapper;
 import com.partridge.order.context.payment.infra.payment.PaymentGatewayClient;
 import com.partridge.order.context.payment.repository.PaymentRepository;
-import com.partridge.order.context.payment.validator.PaymentValidator;
-import com.partridge.order.context.product.repository.ProductRepository;
-import com.partridge.order.context.order.domain.model.Order;
-import com.partridge.order.context.payment.domain.model.Payment;
+import com.partridge.order.context.payment.service.dto.PaymentServiceMapper;
+import com.partridge.order.context.payment.service.validator.PaymentServiceValidator;
+import com.partridge.order.context.product.service.ProductWriter;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {
 	@InjectMocks
-	private PaymentService paymentService;
+	private PaymentFacade paymentFacade;
 	@InjectMocks
-	private PaymentValidator paymentValidator;
+	private PaymentServiceValidator paymentServiceValidator;
 
 	@Mock
-	private OrderRepository mockedOrderRepository;
+	private PaymentServiceValidator mockedPaymentServiceValidator;
 	@Mock
-	private PaymentValidator mockedPaymentValidator;
+	private OrderReader mockedOrderReader;
 	@Mock
-	private PaymentRepository mockedPaymentRepository;
+	private OrderWriter mockedOrderWriter;
+	@Mock
+	private PaymentWriter mockedPaymentWriter;
+	@Mock
+	private ProductWriter mockedProductWriter;
 	@Mock
 	private OrderRedisUtil mockedOrderRedisUtil;
 	@Mock
 	private PaymentGatewayClient mockedPaymentGatewayClient;
 	@Mock
-	private ProductRepository mockedProductRepository;
+	private PaymentReader mockedPaymentReader;
 	@Mock
-	private OrderProductRepotisory mockedOrderProductRepotisory;
+	private PaymentServiceMapper mockedPaymentServiceMapper;
+	@Mock
+	private PaymentGatewayMapper mockedPaymentGatewayMapper;
+
+	private final PaymentServiceMapper paymentServiceMapper = new PaymentServiceMapper();
+	private final PaymentGatewayMapper paymentGatewayMapper = new PaymentGatewayMapper();
 
 	@Test
 	void postPayment_should_return_payment_post_response_when_payment_is_success() {
 		//given
 		PaymentPostDTO.Request request = fakePaymentPostRequestBuilder();
-		List<PaymentPostDTO.OrderProductInventory> orderProduct = fakeOrderProductInventoryBuilder();
+		List<OrderProductInventory> orderProduct = fakeOrderProductInventoryBuilder();
 		Order order = fakeOrderBuilder(request);
 		Payment expectedPayment = fakePayment(request);
 
-		when(mockedOrderProductRepotisory.getInventoryByOrderId(request.getOrderId())).thenReturn(orderProduct);
-		when(mockedOrderRepository.findById(request.getOrderId())).thenReturn(Optional.ofNullable(order));
-		when(mockedPaymentRepository.save(any(Payment.class))).thenReturn(expectedPayment);
+		when(mockedOrderReader.getProductInventoryListByOrderId(request.getOrderId())).thenReturn(orderProduct);
+		when(mockedPaymentServiceMapper.toEntityWithPaymentComplete(request)).thenReturn(expectedPayment);
+		when(mockedPaymentWriter.postPayment(any(Payment.class))).thenReturn(expectedPayment);
 
 		//when
-		PaymentPostDTO.Response response = paymentService.postPayment(request);
+		Payment payment = paymentFacade.postPayment(request);
 
 		//then
-		assertThat(response).isNotNull();
-		assertThat(response.getOrderId()).isEqualTo(request.getOrderId());
-		assertThat(response.getPaymentId()).isNotNull();
-		assertThat(response.getStatus()).isEqualTo(expectedPayment.getStatus());
+		assertThat(payment).isNotNull();
+		assertThat(payment.getOrderId()).isEqualTo(request.getOrderId());
+		assertThat(payment.getId()).isNotNull();
+		assertThat(payment.getStatus()).isEqualTo(expectedPayment.getStatus());
 	}
 
 	@Test
 	void postPayment_should_throw_sold_out_exception_when_inventory_is_not_enough() {
 		//given
-		paymentService = spy(spyPaymentValidator());
+		paymentFacade = spy(spyPaymentValidator());
 		PaymentPostDTO.Request request = fakePaymentPostRequestBuilder();
-		List<PaymentPostDTO.OrderProductInventory> orderProduct = fakeSoldoutOrderProductInventoryBuilder();
+		List<OrderProductInventory> orderProduct = fakeSoldoutOrderProductInventoryBuilder();
 
-		when(mockedOrderProductRepotisory.getInventoryByOrderId(request.getOrderId())).thenReturn(orderProduct);
+		when(mockedOrderReader.getProductInventoryListByOrderId(request.getOrderId())).thenReturn(orderProduct);
 
 		//when
 		//then
-		assertThrows(SoldOutException.class, () -> paymentService.postPayment(request));
+		assertThrows(SoldOutException.class, () -> paymentFacade.postPayment(request));
 	}
 
 	@Test
 	void postPayment_should_throw_duplicate_payment_exception_when_payment_is_in_progress() {
 		//given
-		paymentService = spy(spyPaymentValidator());
+		paymentFacade = spy(spyPaymentValidator());
 		PaymentPostDTO.Request request = fakePaymentPostRequestBuilder();
-		List<PaymentPostDTO.OrderProductInventory> orderProduct = fakeOrderProductInventoryBuilder();
+		List<OrderProductInventory> orderProduct = fakeOrderProductInventoryBuilder();
 
-		when(mockedPaymentRepository.existsPaymentByOrderId(request.getOrderId(), PAYMENT_IN_PROGRESS)).thenReturn(
+		when(mockedPaymentReader.existsPaymentByOrderIdAndStatus(request.getOrderId(), PAYMENT_IN_PROGRESS)).thenReturn(
 			true);
 
 		//when
 		//then
-		assertThrows(DuplicatePaymentException.class, () -> paymentService.postPayment(request));
+		assertThrows(DuplicatePaymentException.class, () -> paymentFacade.postPayment(request));
 	}
 
 	@Test
 	void postPayment_should_throw_payment_already_complete_exception_when_payment_is_complete() {
 		//given
-		paymentService = spy(spyPaymentValidator());
+		paymentFacade = spy(spyPaymentValidator());
 		PaymentPostDTO.Request request = fakePaymentPostRequestBuilder();
-		List<PaymentPostDTO.OrderProductInventory> orderProduct = fakeOrderProductInventoryBuilder();
+		List<OrderProductInventory> orderProduct = fakeOrderProductInventoryBuilder();
 
-		when(mockedPaymentRepository.existsPaymentByOrderId(request.getOrderId(), PAYMENT_IN_PROGRESS)).thenReturn(
+		when(mockedPaymentReader.existsPaymentByOrderIdAndStatus(request.getOrderId(), PAYMENT_IN_PROGRESS)).thenReturn(
 			false);
-		when(mockedPaymentRepository.existsPaymentByOrderId(request.getOrderId(), PAYMENT_COMPLETE)).thenReturn(
+		when(mockedPaymentReader.existsPaymentByOrderIdAndStatus(request.getOrderId(), PAYMENT_COMPLETE)).thenReturn(
 			true);
 
 		//when
 		//then
-		assertThrows(PaymentAlreadyCompleteException.class, () -> paymentService.postPayment(request));
+		assertThrows(PaymentAlreadyCompleteException.class, () -> paymentFacade.postPayment(request));
 	}
 
 	@Test
@@ -124,19 +136,21 @@ class PaymentServiceTest {
 		//given
 		PaymentPostDTO.Request request = fakePaymentPostRequestBuilder();
 		Order order = fakeOrderBuilder(request);
+		Payment expectedPayment = fakePayment(request);
 
-		when(mockedOrderRepository.findById(request.getOrderId())).thenReturn(Optional.ofNullable(order));
+		when(mockedPaymentServiceMapper.toEntityWithPaymentComplete(request)).thenReturn(expectedPayment);
 		doThrow(new PaymentGatewayFailException(request.getKey())).when(mockedPaymentGatewayClient)
 			.requestPayment(any());
 
 		//when
 		//then
-		assertThrows(PaymentGatewayFailException.class, () -> paymentService.postPayment(request));
+		assertThrows(PaymentGatewayFailException.class, () -> paymentFacade.postPayment(request));
 	}
 
-	private PaymentService spyPaymentValidator() {
-		return new PaymentService(mockedPaymentRepository, mockedPaymentGatewayClient, mockedOrderRepository,
-			mockedProductRepository, mockedOrderProductRepotisory, paymentValidator, mockedOrderRedisUtil);
+	private PaymentFacade spyPaymentValidator() {
+		return new PaymentFacade(mockedOrderReader, mockedOrderWriter, mockedPaymentWriter, mockedProductWriter,
+			mockedOrderRedisUtil, paymentServiceValidator, mockedPaymentGatewayClient, paymentServiceMapper,
+			paymentGatewayMapper);
 	}
 
 	private PaymentPostDTO.Request fakePaymentPostRequestBuilder() {
@@ -150,8 +164,8 @@ class PaymentServiceTest {
 			.build();
 	}
 
-	private List<PaymentPostDTO.OrderProductInventory> fakeOrderProductInventoryBuilder() {
-		return List.of(PaymentPostDTO.OrderProductInventory.builder()
+	private List<OrderProductInventory> fakeOrderProductInventoryBuilder() {
+		return List.of(OrderProductInventory.builder()
 			.orderId(2L)
 			.productId(1L)
 			.quantity(2L)
@@ -160,8 +174,8 @@ class PaymentServiceTest {
 			.build());
 	}
 
-	private List<PaymentPostDTO.OrderProductInventory> fakeSoldoutOrderProductInventoryBuilder() {
-		return List.of(PaymentPostDTO.OrderProductInventory.builder()
+	private List<OrderProductInventory> fakeSoldoutOrderProductInventoryBuilder() {
+		return List.of(OrderProductInventory.builder()
 			.orderId(2L)
 			.productId(1L)
 			.quantity(4L)

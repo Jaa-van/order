@@ -1,4 +1,4 @@
-package com.partridge.order.context.payment.controller.dto;
+package com.partridge.order.context.payment.infra.dto;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import com.partridge.order.context.order.service.dto.OrderProductInventory;
 import com.partridge.order.context.payment.controller.dto.PaymentPostDTO;
 import com.partridge.order.context.order.domain.model.OrderProduct;
 
@@ -19,5 +20,5 @@ public interface OrderProductRepotisory extends JpaRepository<OrderProduct, Long
 		+ " where op.order_id = :orderId "
 		+ "FOR UPDATE"
 		, nativeQuery = true)
-	List<PaymentPostDTO.OrderProductInventory> getInventoryByOrderId(Long orderId);
+	List<OrderProductInventory> getInventoryByOrderId(Long orderId);
 }

@@ -17,8 +17,11 @@ public class ProductWriter {
 	private final ProductRepository productRepository;
 	private final ProductDtoMapper productDtoMapper;
 
-	@Transactional
 	public Product postProduct(ProductPostDTO.Request request) {
 		return productRepository.save(productDtoMapper.toEntity(request, KeyUtil.generateKey()));
+	}
+
+	public void updateProductInventory(Long productId, Long quantity) {
+		productRepository.updateProductInventory(productId, quantity);
 	}
 }

@@ -40,18 +40,18 @@ class OrderServiceTest {
 	@Mock
 	private OrderProductRepotisory mockedOrderProductRepotisory;
 	@Mock
-	private OrderValidator mockedOrderValidator;
+	private OrderServiceValidator mockedOrderValidator;
 	@Mock
 	private OrderServiceValidator mockedOrderServiceValidator;
 	@Mock
 	private ProductReader mockedProductReader;
 	@Mock
+	private OrderReader mockedOrderReader;
+	@Mock
 	private OrderWriter mockedOrderWriter;
 
 	@InjectMocks
 	private OrderFacade orderFacade;
-	@InjectMocks
-	private OrderValidator orderValidator;
 	@InjectMocks
 	private OrderServiceValidator orderServiceValidator;
 
@@ -153,8 +153,7 @@ class OrderServiceTest {
 	}
 
 	private OrderFacade mockOrderRedisUtilWithoutValidator() {
-		return new OrderFacade(mockedOrderRedisUtil, orderServiceValidator, mockedProductReader, orderValidator,
-			mockedOrderWriter);
+		return new OrderFacade(mockedOrderRedisUtil, orderServiceValidator, mockedProductReader, mockedOrderWriter, mockedOrderReader);
 	}
 
 	private OrderPostDto.Request fakeOrderRequestBuilder() {
